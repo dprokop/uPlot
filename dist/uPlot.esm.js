@@ -2282,6 +2282,8 @@ function uPlot(opts, data, then) {
 
 	let dragging = false;
 
+	let cachedMouseEvent = null;
+
 	const drag =  cursor.drag;
 
 	let dragX =  drag.x;
@@ -2314,7 +2316,7 @@ function uPlot(opts, data, then) {
 			for (let prop in opts)
 				setStylePx(selectDiv, prop, select[prop] = opts[prop]);
 
-			_fire !== false && fire("setSelect");
+			_fire !== false && fireInteraction("setSelect", cachedMouseEvent);
 		}
 	}
 
@@ -2711,7 +2713,7 @@ function uPlot(opts, data, then) {
 			}
 		}
 
-		ready && fire("setCursor");
+		ready && fireInteraction("setCursor", cachedMouseEvent);
 	}
 
 	let rect = null;
@@ -2736,6 +2738,7 @@ function uPlot(opts, data, then) {
 
 	function cacheMouse(e, src, _x, _y, _w, _h, _i, initial, snap) {
 		if (e != null) {
+			cachedMouseEvent = e;
 			_x = e.clientX - rect.left;
 			_y = e.clientY - rect.top;
 		}
@@ -2956,6 +2959,14 @@ function uPlot(opts, data, then) {
 		if (evName in hooks) {
 			hooks[evName].forEach(fn => {
 				fn.call(null, self, a1, a2);
+			});
+		}
+	}
+
+	function fireInteraction(evName, ev, a1, a2) {
+		if (evName in hooks) {
+			hooks[evName].forEach(fn => {
+				fn.call(null, self, ev, a1, a2);
 			});
 		}
 	}

@@ -2289,6 +2289,8 @@ var uPlot = (function () {
 
 		var dragging = false;
 
+		var cachedMouseEvent = null;
+
 		var drag =  cursor.drag;
 
 		var dragX =  drag.x;
@@ -2321,7 +2323,7 @@ var uPlot = (function () {
 				for (var prop in opts)
 					{ setStylePx(selectDiv, prop, select[prop] = opts[prop]); }
 
-				_fire !== false && fire("setSelect");
+				_fire !== false && fireInteraction("setSelect", cachedMouseEvent);
 			}
 		}
 
@@ -2722,7 +2724,7 @@ var uPlot = (function () {
 				}
 			}
 
-			ready && fire("setCursor");
+			ready && fireInteraction("setCursor", cachedMouseEvent);
 		}
 
 		var rect = null;
@@ -2749,6 +2751,7 @@ var uPlot = (function () {
 			var assign;
 
 			if (e != null) {
+				cachedMouseEvent = e;
 				_x = e.clientX - rect.left;
 				_y = e.clientY - rect.top;
 			}
@@ -2971,6 +2974,14 @@ var uPlot = (function () {
 			if (evName in hooks) {
 				hooks[evName].forEach(function (fn) {
 					fn.call(null, self, a1, a2);
+				});
+			}
+		}
+
+		function fireInteraction(evName, ev, a1, a2) {
+			if (evName in hooks) {
+				hooks[evName].forEach(function (fn) {
+					fn.call(null, self, ev, a1, a2);
 				});
 			}
 		}
